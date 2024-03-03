@@ -1,12 +1,10 @@
 "use client";
 
-import {
-  useOrganization,
-  useUser,
-} from "@clerk/nextjs";
+import { FileCard } from "./file-card";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { UploadButton } from "./upload-button";
+import { api } from "../../convex/_generated/api";
+import { useOrganization, useUser } from "@clerk/nextjs";
 
 export default function Home() {
 
@@ -26,9 +24,11 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Your Files</h1>
         <UploadButton />
       </div>
-      {files?.map((file) => {
-        return <div key={file._id}>{file.name}</div>;
-      })}
+      <div className="grid grid-cols-4 gap-4">
+        {files?.map((file) => {
+          return <FileCard key={file._id} file={file} />;
+        })}
+      </div>
     </main>
   );
 }
