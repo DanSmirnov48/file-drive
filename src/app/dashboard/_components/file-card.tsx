@@ -38,6 +38,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
+import { Protect } from "@clerk/nextjs";
 
 function FileCardActions({
     file,
@@ -105,13 +106,15 @@ function FileCardActions({
                             </div>
                         )}
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        onClick={() => setIsConfirmOpen(true)}
-                        className="flex gap-1 text-red-600 items-center cursor-pointer"
-                    >
-                        <TrashIcon className="w-4 h-4" /> Delete
-                    </DropdownMenuItem>
+                    <Protect role="org:admin" fallback={<></>}>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={() => setIsConfirmOpen(true)}
+                            className="flex gap-1 text-red-600 items-center cursor-pointer"
+                        >
+                            <TrashIcon className="w-4 h-4" /> Delete
+                        </DropdownMenuItem>
+                    </Protect>
                 </DropdownMenuContent>
             </DropdownMenu>
         </>
