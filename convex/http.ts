@@ -38,7 +38,7 @@ http.route({
                     case "organizationMembership.updated":
                         console.log(result.data.role);
                         await ctx.runMutation(internal.users.updateRoleInOrgForUser, {
-                          tokenIdentifier: `https://poetic-salmon-66.clerk.accounts.dev|${result.data.public_user_data.user_id}`,
+                          tokenIdentifier: `https://new-pangolin-91.clerk.accounts.dev|${result.data.public_user_data.user_id}`,
                           orgId: result.data.organization.id,
                           role: result.data.role === "org:admin" ? "admin" : "member",
                     });
