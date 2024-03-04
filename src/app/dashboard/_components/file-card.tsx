@@ -5,12 +5,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Doc, Id } from "../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -18,6 +19,7 @@ import {
     GanttChartIcon,
     ImageIcon,
     MoreVertical,
+    StarIcon,
     TrashIcon,
 } from "lucide-react";
 import {
@@ -32,13 +34,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ReactNode, useState } from "react";
 import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "../../../../convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 
 function FileCardActions({ file }: { file: Doc<"files"> }) {
     const { toast } = useToast();
     const deleteFile = useMutation(api.files.deleteFile);
+    const toggleFavorite = useMutation(api.files.toggleFavorite);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     return (
@@ -78,6 +81,17 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem
+                        onClick={() => {
+                            toggleFavorite({
+                                fileId: file._id,
+                            });
+                        }}
+                        className="flex gap-1 items-center cursor-pointer"
+                    >
+                        <StarIcon className="w-4 h-4" /> Favorite
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
                         onClick={() => setIsConfirmOpen(true)}
                         className="flex gap-1 text-red-600 items-center cursor-pointer"
                     >
@@ -114,9 +128,10 @@ export function FileCard({ file }: { file: Doc<"files"> }) {
                 {file.type === "image" && (
                     <Image
                         alt={file.name}
-                        width="200"
-                        height="100"
+                        width="300"
+                        height="200"
                         src={getFileUrl(file.fileId)}
+                        className="rounded-lg"
                     />
                 )}
 
