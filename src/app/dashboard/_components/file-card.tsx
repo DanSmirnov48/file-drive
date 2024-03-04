@@ -22,6 +22,7 @@ import {
     StarHalf,
     StarIcon,
     TrashIcon,
+    UndoIcon,
 } from "lucide-react";
 import {
     AlertDialog,
@@ -40,6 +41,7 @@ import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 import { Protect } from "@clerk/nextjs";
 
+
 function FileCardActions({
     file,
     isFavorited,
@@ -49,6 +51,7 @@ function FileCardActions({
 }) {
     const { toast } = useToast();
     const deleteFile = useMutation(api.files.deleteFile);
+    const restoreFile = useMutation(api.files.restoreFile);
     const toggleFavorite = useMutation(api.files.toggleFavorite);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -109,10 +112,26 @@ function FileCardActions({
                     <Protect role="org:admin" fallback={<></>}>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={() => setIsConfirmOpen(true)}
-                            className="flex gap-1 text-red-600 items-center cursor-pointer"
+                            onClick={() => {
+                                if (file.shouldDelete) {
+                                    restoreFile({
+                                        fileId: file._id
+                                    })
+                                } else {
+                                    setIsConfirmOpen(true);
+                                }
+                            }}
+                            className="flex gap-1 items-center cursor-pointer"
                         >
-                            <TrashIcon className="w-4 h-4" /> Delete
+                            {file.shouldDelete ? (
+                                <div className="flex gap-1 text-green-600 items-center cursor-pointer">
+                                    <UndoIcon className="w-4 h-4" /> Restore
+                                </div>
+                            ) : (
+                                <div className="flex gap-1 text-red-600 items-center cursor-pointer">
+                                    <TrashIcon className="w-4 h-4" /> Delete
+                                </div>
+                            )}
                         </DropdownMenuItem>
                     </Protect>
                 </DropdownMenuContent>
