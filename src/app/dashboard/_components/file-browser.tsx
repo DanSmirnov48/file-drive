@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { GridIcon, Loader2, RowsIcon } from "lucide-react";
 import { FileCard } from "./file-card";
 import { useQuery } from "convex/react";
 import { UploadButton } from "./upload-button";
@@ -11,6 +11,8 @@ import { SearchBar } from "./search-bar";
 import { useState } from "react";
 import { DataTable } from "./file-table";
 import { columns } from "./columns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 function Placeholder() {
   return (
@@ -66,7 +68,24 @@ export function FileBrowser({
 
   return (
     <div>
-      <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">{title}</h1>
+
+        <SearchBar query={query} setQuery={setQuery} />
+        <UploadButton />
+      </div>
+
+      <Tabs defaultValue="grid" className="">
+        <TabsList className="mb-2">
+          <TabsTrigger value="grid" className="flex gap-2 items-center">
+            <GridIcon />
+            Grid
+          </TabsTrigger>
+          <TabsTrigger value="table" className="flex gap-2 items-center">
+            <RowsIcon /> Table
+          </TabsTrigger>
+        </TabsList>
+
         {isLoading && (
           <div className="flex flex-col gap-8 w-full items-center mt-24">
             <Loader2 className="h-32 w-32 animate-spin text-gray-500" />
@@ -74,27 +93,19 @@ export function FileBrowser({
           </div>
         )}
 
-        {!isLoading && (
-          <>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-4xl font-bold">{title}</h1>
+        <TabsContent value="grid">
+          <div className="grid grid-cols-3 gap-4">
+            {modifiedFiles?.map((file) => {
+              return <FileCard key={file._id} file={file} />;
+            })}
+          </div>
+        </TabsContent>
+        <TabsContent value="table">
+          <DataTable columns={columns} data={modifiedFiles} />
+        </TabsContent>
+      </Tabs>
 
-              <SearchBar query={query} setQuery={setQuery} />
-              <UploadButton />
-            </div>
-
-            {modifiedFiles.length === 0 && <Placeholder />}
-
-            <DataTable columns={columns} data={modifiedFiles} />
-
-            <div className="grid grid-cols-3 gap-4">
-              {modifiedFiles?.map((file) => {
-                return <FileCard key={file._id} file={file} />;
-              })}
-            </div>
-          </>
-        )}
-      </div>
+      {files?.length === 0 && <Placeholder />}
     </div>
   );
 }
