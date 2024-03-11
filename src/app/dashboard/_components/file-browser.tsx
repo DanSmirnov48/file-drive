@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FileIcon, Loader2, StarIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { FileCard } from "./file-card";
 import { useQuery } from "convex/react";
 import { UploadButton } from "./upload-button";
@@ -9,8 +9,8 @@ import { api } from "../../../../convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { SearchBar } from "./search-bar";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { DataTable } from "./file-table";
+import { columns } from "./columns";
 
 function Placeholder() {
   return (
@@ -36,10 +36,9 @@ export function FileBrowser({
   favoritesOnly?: boolean;
   deletedOnly?: boolean;
 }) {
-
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isLoaded: userLoaded, user } = useUser();
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
   let orgId: string | undefined = undefined;
 
   if (isOrgLoaded && userLoaded) {
@@ -53,9 +52,17 @@ export function FileBrowser({
 
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly  } : "skip"
+    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip"
   );
   const isLoading = files === undefined;
+
+  const modifiedFiles =
+    files?.map((file) => ({
+      ...file,
+      isFavorited: (favorites ?? []).some(
+        (favorite) => favorite.fileId === file._id
+      ),
+    })) ?? [];
 
   return (
     <div>
@@ -76,23 +83,18 @@ export function FileBrowser({
               <UploadButton />
             </div>
 
-            {files.length === 0 && <Placeholder />}
+            {modifiedFiles.length === 0 && <Placeholder />}
+
+            <DataTable columns={columns} data={modifiedFiles} />
 
             <div className="grid grid-cols-3 gap-4">
-              {files?.map((file) => {
-                return (
-                  <FileCard
-                    favorites={favorites ?? []}
-                    key={file._id}
-                    file={file}
-                  />
-                );
+              {modifiedFiles?.map((file) => {
+                return <FileCard key={file._id} file={file} />;
               })}
             </div>
           </>
         )}
       </div>
     </div>
-
   );
 }
